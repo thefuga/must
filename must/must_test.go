@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+
+	. "github.com/thefuga/must/functions"
 )
 
 func Test_Must(t *testing.T) {
