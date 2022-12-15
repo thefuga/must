@@ -4,15 +4,13 @@ import (
 	"github.com/thefuga/must/internal/reflect"
 )
 
-// Return is an alias for Must, which, when importing the package, may read more naturally.
-// e.g.: must.Return(must.Values(foo()), target...)
-func Return[T any](results []any, targets ...any) {
-	Must(results, targets...)
-}
-
 // Must is the generic implementation of Must. It is specially usefull to populate
 // a slice of targets of the same type. E.g.: Must[int](FuncReturningInts(), intTargetSlice...)
-func Must[T any](results []any, targets ...T) {
+// The results matching T will be populated into the targets slice as they appear.
+// The targets slice must be previously allocated.
+// Must returns after the capacity of the targets slic is fullfilled. After this point,
+// all (if any) remaining result values will be discarded.
+func Must[T any](results []any, targets []T) {
 	if results == nil {
 		return
 	}
@@ -22,6 +20,15 @@ func Must[T any](results []any, targets ...T) {
 	}
 
 	for i := range targets {
-		reflect.Set(targets[i], results[i])
+		v, ok := results[i].(T)
+		if !ok {
+			continue
+		}
+
+		if len(targets) <= i {
+			return
+		}
+
+		targets[i] = v
 	}
 }
